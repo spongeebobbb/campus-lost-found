@@ -1,70 +1,146 @@
-# Getting Started with Create React App
+# Campus Lost & Found Web Application
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A fully responsive, secure, and real-time web portal where students can report, search, claim, and manage lost or found items on campus.
 
-## Available Scripts
+## 🧱 Tech Stack
 
-In the project directory, you can run:
+- **Frontend**: React.js + JSX
+- **Backend/Database**: Firebase Firestore
+- **Authentication**: Firebase Auth (Google & Email Login)
+- **File Storage**: Firebase Cloud Storage
+- **Styling**: Tailwind CSS
+- **Notifications**: EmailJS integration
 
-### `npm start`
+## 🔧 Core Functionalities
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. **Authentication System**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+   - Google Sign-in via Firebase
+   - Email/Password authentication
+   - Role detection (admin vs regular user)
+   - User profiles stored in Firestore
 
-### `npm test`
+2. **Item Reporting**
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+   - Found Item Form: Title, Description, Image, Found Location, Date
+   - Lost Item Form: Title, Description, Location Last Seen, Reward (optional)
 
-### `npm run build`
+3. **Dynamic Item Feed**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+   - Search and filter by category, date range, location
+   - Responsive grid layout
+   - Infinite scroll pagination
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. **Matching Algorithm**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   - String similarity (Levenshtein distance)
+   - Category, date, and location matching
+   - Match scoring system
 
-### `npm run eject`
+5. **Item Claim Process**
+   - Claim request forms
+   - Admin review system
+   - Status tracking (available, claimed, approved, rejected)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 📝 Project Structure
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+src/
+  ├── components/        # Reusable UI components
+  │   ├── FoundItemForm.js
+  │   ├── ItemCard.js
+  │   ├── LostItemForm.js
+  │   └── Navbar.js
+  ├── contexts/          # React context providers
+  │   └── AuthContext.js
+  ├── firebase/          # Firebase configuration
+  │   └── config.js
+  ├── pages/             # Page components
+  │   ├── FoundItems.js
+  │   ├── Login.js
+  │   ├── LostItems.js
+  │   └── SignUp.js
+  ├── utils/             # Utility functions
+  │   └── matching.js
+  ├── App.js             # Main application component
+  └── index.js           # Entry point
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🚀 Getting Started
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Prerequisites
 
-## Learn More
+- Node.js and npm installed
+- Firebase account and project setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Installation
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+1. Clone the repository:
 
-### Code Splitting
+   ```bash
+   git clone https://github.com/yourusername/campus-lost-found.git
+   cd campus-lost-found
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+2. Install dependencies:
 
-### Analyzing the Bundle Size
+   ```bash
+   npm install
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+3. Set up Firebase configuration:
 
-### Making a Progressive Web App
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication (Email/Password and Google)
+   - Create a Firestore database
+   - Enable Storage
+   - Update the `src/firebase/config.js` file with your Firebase credentials
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+4. Start the development server:
+   ```bash
+   npm start
+   ```
 
-### Advanced Configuration
+## 🔒 Security Rules
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Remember to set up proper security rules in your Firebase console for Firestore and Storage to ensure data safety.
 
-### Deployment
+Example Firestore rules:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Only authenticated users can read and create items
+    match /found_items/{item} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        (request.auth.uid == resource.data.foundBy.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
 
-### `npm run build` fails to minify
+    match /lost_items/{item} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update, delete: if request.auth != null &&
+        (request.auth.uid == resource.data.lostBy.uid || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin');
+    }
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+    match /users/{userId} {
+      allow read: if request.auth != null && request.auth.uid == userId;
+      allow create, update: if request.auth != null && request.auth.uid == userId;
+    }
+  }
+}
+```
+
+## 📱 Responsive Design
+
+The application is fully responsive and works on devices of all sizes, from mobile phones to large desktop screens.
+
+## 🌟 Future Enhancements
+
+- Implement real-time notifications using Firebase Cloud Messaging
+- Add image recognition for better item matching using Google Cloud Vision API
+- Create a mobile app version using React Native
+- Implement a chat feature for direct communication between item finders and owners
