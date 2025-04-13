@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { collection, query, orderBy, where, getDocs, limit, startAfter } from 'firebase/firestore';
+import { collection, query, orderBy, where, getDocs, limit, startAfter, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import ItemCard from '../components/ItemCard';
 import { Link } from 'react-router-dom';
@@ -26,6 +26,53 @@ const FoundItems = () => {
     'Library', 'Student Center', 'Cafeteria', 'Gym', 
     'Science Building', 'Arts Building', 'Dormitories', 'Parking Lot', 'Other'
   ];
+
+  // Process found items to automatically conclude items in processing state
+  const processFoundItems = async (itemsData) => {
+    const currentDate = new Date();
+    const processedItems = [...itemsData];
+    const itemsToUpdate = [];
+
+    for (let i = 0; i < processedItems.length; i++) {
+      const item = processedItems[i];
+      
+      // If the item is in 'processing' state and was created more than 2 days ago
+      if (!item.status || item.status === 'processing') {
+        const createdAt = item.createdAt?.toDate ? item.createdAt.toDate() : new Date(item.createdAt);
+        const daysSinceCreation = Math.floor((currentDate - createdAt) / (1000 * 60 * 60 * 24));
+        
+        // If it's been more than 2 days since creation, update the status to 'found'
+        if (daysSinceCreation >= 2) {
+          processedItems[i].status = 'found';
+          itemsToUpdate.push({
+            id: item.id,
+            status: 'found'
+          });
+        }
+      }
+    }
+
+    // Update the items in Firestore
+    const updatePromises = itemsToUpdate.map(item => {
+      const itemRef = doc(db, 'found_items', item.id);
+      return updateDoc(itemRef, { 
+        status: item.status,
+        updatedAt: new Date()
+      });
+    });
+
+    // Wait for all updates to complete
+    if (updatePromises.length > 0) {
+      try {
+        await Promise.all(updatePromises);
+        console.log(`${updatePromises.length} items have been updated from 'processing' to 'found'`);
+      } catch (error) {
+        console.error('Error updating item statuses:', error);
+      }
+    }
+
+    return processedItems;
+  };
 
   const fetchItems = async (isInitial = false) => {
     try {
@@ -82,13 +129,16 @@ const FoundItems = () => {
         ...doc.data()
       }));
       
+      // Process found items to update status if needed
+      const processedItems = await processFoundItems(loadedItems);
+      
       // Filter by search query if it exists (client-side filtering)
       const filteredItems = searchQuery 
-        ? loadedItems.filter(item => 
+        ? processedItems.filter(item => 
             item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             item.description.toLowerCase().includes(searchQuery.toLowerCase())
           )
-        : loadedItems;
+        : processedItems;
       
       // Filter by date range if it exists (client-side filtering)
       const dateFilteredItems = filteredItems.filter(item => {

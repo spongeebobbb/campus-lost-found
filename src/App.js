@@ -14,6 +14,7 @@ import FoundItemForm from './components/FoundItemForm';
 import LostItemForm from './components/LostItemForm';
 import Home from './pages/Home';
 import Profile from './pages/Profile';
+import ItemDetail from './pages/ItemDetail';
 
 // Route Guards
 const ProtectedRoute = ({ children }) => {
@@ -96,13 +97,19 @@ function AppRoutes() {
             } 
           />
           
+          {/* Item Detail Route */}
+          <Route 
+            path="/item/:type/:id" 
+            element={<ItemDetail />}
+          />
+          
           {/* 404 Route */}
           <Route path="*" element={<div className="text-center py-20">Page Not Found</div>} />
         </Routes>
       </main>
       
       <footer className="bg-white py-6 text-center text-gray-500 text-sm">
-        <p>&copy; {new Date().getFullYear()} Campus Lost &amp; Found</p>
+        <p>&copy; {new Date().getFullYear()} VJLNF</p>
       </footer>
     </div>
   );

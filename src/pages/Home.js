@@ -21,7 +21,7 @@ const Home = () => {
         <div className="relative px-4 py-24 sm:px-6 sm:py-32 lg:py-40 lg:px-8">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
-              Campus Lost & Found
+              VJLNF
             </h1>
             <p className="mt-6 text-xl text-white max-w-2xl mx-auto">
               The easiest way to report and recover lost items on campus. Our platform connects the campus community to help return lost belongings to their rightful owners.

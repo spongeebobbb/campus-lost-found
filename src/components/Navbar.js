@@ -32,23 +32,13 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
-              <svg className="h-8 w-8 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-              </svg>
-              <span className="font-bold text-xl">Campus Lost & Found</span>
+              <span className="font-bold text-xl">VJLNF</span>
             </Link>
           </div>
           
           <div className="flex items-center">
             <div className="hidden md:ml-6 md:flex md:space-x-4">
-              <Link 
-                to="/" 
-                className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
-                  ${isActive('/') ? 'bg-white text-[#82001A]' : 'hover:bg-[#82001A]/80'}`}
-              >
-                Home
-              </Link>
-              
+              {/* Home link removed */}
               <Link 
                 to="/found-items" 
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 
@@ -168,14 +158,7 @@ const Navbar = () => {
       {/* Mobile Menu */}
       <div className={`md:hidden ${mobileMenuOpen ? 'block' : 'hidden'}`}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-[#82001A]/95">
-          <Link 
-            to="/" 
-            className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/') ? 'bg-white text-[#82001A]' : 'hover:bg-[#82001A]/80'}`}
-            onClick={() => setMobileMenuOpen(false)}
-          >
-            Home
-          </Link>
-          
+          {/* Home link removed from mobile menu */}
           <Link 
             to="/found-items" 
             className={`block px-3 py-2 rounded-md text-base font-medium ${isActive('/found-items') ? 'bg-white text-[#82001A]' : 'hover:bg-[#82001A]/80'}`}
